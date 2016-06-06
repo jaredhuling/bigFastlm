@@ -9,6 +9,11 @@
 
 \S4method{\%*\%}{vector,big.matrix}(x, y)
 }
+\arguments{
+\item{x}{big.matrix}
+
+\item{y}{numeric vector}
+}
 \description{
 big.matrix prod
 

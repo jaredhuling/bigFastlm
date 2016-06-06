@@ -39,6 +39,8 @@ big.colMin <- function(x)
 
 #' big.matrix prod
 #'
+#' @param x big.matrix
+#' @param y numeric vector
 #' @name %*%
 #' @aliases %*%
 #' @docType methods
