@@ -135,8 +135,6 @@ bigLm.default <- function(X, y, method = 0L, ...) {
 
 #' print method for bigLm objects
 #'
-#' @param x a "bigLm" object
-#' @param ... not used
 #' @rdname print
 #' @method print bigLm
 #' @export
@@ -149,6 +147,8 @@ print.bigLm <- function(x, ...) {
 
 #' summary method for bigLm fitted objects
 #'
+#' @param object bigLm fitted object
+#' @param ... not used
 #' @rdname summary
 #' @method summary bigLm
 #' @export
@@ -231,6 +231,8 @@ print.summary.bigLm <- function(x, ...) {
 #' @param newdata big.matrix object. If NULL, then fitted values are returned
 #' @param ... not used
 #' @return An object depending on the type argument
+#' @importFrom bigmemory is.big.matrix as.big.matrix
+#' @importFrom stats coef fitted pt printCoefmat
 #' @export
 #' @examples
 #'

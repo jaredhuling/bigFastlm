@@ -6,6 +6,11 @@
 \usage{
 \method{summary}{bigLm}(object, ...)
 }
+\arguments{
+\item{object}{bigLm fitted object}
+
+\item{...}{not used}
+}
 \description{
 summary method for bigLm fitted objects
 }

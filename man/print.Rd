@@ -10,10 +10,6 @@
 \method{print}{summary.bigLm}(x, ...)
 }
 \arguments{
-\item{x}{a "bigLm" object}
-
-\item{...}{not used}
-
 \item{x}{a "summary.bigLm" object}
 
 \item{...}{not used}
