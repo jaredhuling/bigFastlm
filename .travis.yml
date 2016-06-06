@@ -1,0 +1,25 @@
+language: r
+cache: packages
+
+warnings_are_errors: true
+
+sudo: false
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
+osx_image: xcode7
+
+os:
+  - linux
+  - osx
+
+r_packages:
+  - covr
+  
+after_success:
+  - Rscript -e 'covr::codecov()'
+
+
