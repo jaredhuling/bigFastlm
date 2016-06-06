@@ -37,8 +37,14 @@ big.colMin <- function(x)
 }
 
 
+#' big.matrix prod
+#'
+#' @name %*%
+#' @aliases %*%
+#' @docType methods
+#' @rdname extract-methods
 setMethod("%*%",signature(x="big.matrix", y="vector"),
-          function(x, y) 
+          function(x, y)
           {
             if(dim(x)[2] != length(y)) stop("non-conformant matrices")
             return( .Call("prod_vec_big", x@address, y) )
@@ -46,8 +52,14 @@ setMethod("%*%",signature(x="big.matrix", y="vector"),
           valueClass="vector"
 )
 
+#' big.matrix prod
+#'
+#' @name %*%
+#' @aliases %*%
+#' @docType methods
+#' @rdname extract-methods
 setMethod("%*%",signature(x="vector", y="big.matrix"),
-          function(x, y) 
+          function(x, y)
           {
             if(dim(y)[2] != length(x)) stop("non-conformant matrices")
             return( .Call("prod_vec_big_right", x, y@address) )
