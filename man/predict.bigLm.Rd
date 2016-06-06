@@ -23,7 +23,7 @@ Prediction method for bigLm fitted objects
 
 library(bigmemory)
 
-nrows <- 500000
+nrows <- 50000
 ncols <- 50
 bkFile <- "bigmat3.bk"
 descFile <- "bigmatk3.desc"

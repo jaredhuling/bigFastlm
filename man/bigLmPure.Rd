@@ -30,7 +30,7 @@ fast and memory efficient linear model fitting
 
 library(bigmemory)
 
-nrows <- 500000
+nrows <- 50000
 ncols <- 50
 bkFile <- "bigmat2.bk"
 descFile <- "bigmatk2.desc"

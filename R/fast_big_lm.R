@@ -39,7 +39,7 @@
 #'
 #' library(bigmemory)
 #'
-#' nrows <- 500000
+#' nrows <- 50000
 #' ncols <- 50
 #' bkFile <- "bigmat2.bk"
 #' descFile <- "bigmatk2.desc"
@@ -89,7 +89,7 @@ bigLmPure <- function(X, y, method = 0L) {
 #'
 #' library(bigmemory)
 #'
-#' nrows <- 500000
+#' nrows <- 50000
 #' ncols <- 50
 #' bkFile <- "bigmat.bk"
 #' descFile <- "bigmatk.desc"
@@ -154,7 +154,7 @@ print.bigLm <- function(x, ...) {
 #' @export
 #' library(bigmemory)
 #'
-#' nrows <- 500000
+#' nrows <- 50000
 #' ncols <- 15
 #' bkFile <- "bigmat4.bk"
 #' descFile <- "bigmatk4.desc"
@@ -238,7 +238,7 @@ print.summary.bigLm <- function(x, ...) {
 #'
 #' library(bigmemory)
 #'
-#' nrows <- 500000
+#' nrows <- 50000
 #' ncols <- 50
 #' bkFile <- "bigmat3.bk"
 #' descFile <- "bigmatk3.desc"

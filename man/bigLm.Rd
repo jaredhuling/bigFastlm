@@ -37,7 +37,7 @@ bigLm default
 
 library(bigmemory)
 
-nrows <- 500000
+nrows <- 50000
 ncols <- 50
 bkFile <- "bigmat.bk"
 descFile <- "bigmatk.desc"
