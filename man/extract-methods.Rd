@@ -3,6 +3,7 @@
 \docType{methods}
 \name{\%*\%}
 \alias{\%*\%}
+\alias{\%*\%,big.matrix,vector}
 \title{big.matrix prod}
 \usage{
 \S4method{\%*\%}{big.matrix,vector}(x, y)

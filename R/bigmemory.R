@@ -42,7 +42,7 @@ big.colMin <- function(x)
 #' @param x big.matrix
 #' @param y numeric vector
 #' @name %*%
-#' @aliases %*%
+#' @aliases %*%,big.matrix,vector
 #' @docType methods
 #' @rdname extract-methods
 setMethod("%*%",signature(x="big.matrix", y="vector"),
@@ -57,7 +57,7 @@ setMethod("%*%",signature(x="big.matrix", y="vector"),
 #' big.matrix prod
 #'
 #' @name %*%
-#' @aliases %*%
+#' @aliases %*%,big.matrix,vector
 #' @docType methods
 #' @rdname extract-methods
 setMethod("%*%",signature(x="vector", y="big.matrix"),
