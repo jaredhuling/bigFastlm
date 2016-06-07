@@ -18,3 +18,30 @@ Install using the **devtools** package (RcppEigen and bigmemory must be installe
 ```r
 devtools::install_github("jaredhuling/bigFastlm")
 ```
+
+### Usage
+
+```r
+library(bigFastlm)
+library(bigmemory)
+
+nrows <- 50000
+ncols <- 50
+bkFile <- "bigmat.bk"
+descFile <- "bigmatk.desc"
+bigmat <- filebacked.big.matrix(nrow=nrows, ncol=ncols, type="double",
+                                backingfile=bkFile, backingpath=".",
+                                descriptorfile=descFile,
+                                dimnames=c(NULL,NULL))
+
+set.seed(123)
+for (i in 1:ncols) bigmat[,i] = rnorm(nrows)*i
+
+y <- rnorm(nrows) + bigmat[,1]
+
+system.time(lmr1 <- bigLm(bigmat, y))
+
+summary(lmr1)
+
+predictions <- predict(lmr1, newdata = bigmat)
+```
