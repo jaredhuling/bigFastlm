@@ -23,3 +23,7 @@ bigFastlm.Rproj
 src/*.o
 src/*.so
 src/*.dll
+
+
+*.bk
+*.desc
