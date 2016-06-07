@@ -64,9 +64,9 @@
 #'
 bigLmPure <- function(X, y, method = 0L) {
 
-  stopifnot( is.big.matrix(X), is.numeric(y), NROW(y) == nrow(X) )
+    stopifnot( is.big.matrix(X), is.numeric(y), NROW(y) == nrow(X) )
 
-  .Call("bigLm_Impl", X@address, y, method, colnames(X), PACKAGE="bigFastlm")
+    .Call("bigLm_Impl", X@address, y, method, colnames(X), PACKAGE="bigFastlm")
 }
 
 #' fast and memory efficient linear model fitting
@@ -115,43 +115,17 @@ bigLmPure <- function(X, y, method = 0L) {
 bigLm <- function(X, ...) UseMethod("bigLm")
 
 
-#' bigLm default
-#'
-#' @param ... not used
-#' @rdname bigLm
-#' @method bigLm default
-#' @export
-bigLm.default <- function(X, y, method = 0L, ...) {
-
-  y <- as.numeric(y)
-
-  res <- bigLmPure(X, y, method)
-  res$call <- match.call()
-  res$intercept <- any(big.colMax(X) == big.colMin(X))
-
-  class(res) <- "bigLm"
-  res
-}
-
-#' print method for bigLm objects
-#'
-#' @rdname print
-#' @method print bigLm
-#' @export
-print.bigLm <- function(x, ...) {
-  cat("\nCall:\n")
-  print(x$call)
-  cat("\nCoefficients:\n")
-  print(x$coefficients, digits=5)
-}
 
 #' summary method for bigLm fitted objects
 #'
 #' @param object bigLm fitted object
 #' @param ... not used
+#' @return a summary.bigLm object
 #' @rdname summary
 #' @method summary bigLm
 #' @export
+#' @examples
+#'
 #' library(bigmemory)
 #'
 #' nrows <- 50000
@@ -175,30 +149,62 @@ print.bigLm <- function(x, ...) {
 #' summary(lmr1)
 #'
 #'
-summary.bigLm <- function(object, ...) {
-  coef <- object$coefficients
-  se   <- object$se
-  tval <- coef/se
+summary.bigLm <- function(object, ...)
+{
+    coef <- object$coefficients
+    se   <- object$se
+    tval <- coef/se
 
-  object$coefficients <- cbind(Estimate     = coef,
-                               "Std. Error" = se,
-                               "t value"    = tval,
-                               "Pr(>|t|)"   = 2*pt(-abs(tval), df=object$df))
+    object$coefficients <- cbind(Estimate     = coef,
+                                 "Std. Error" = se,
+                                 "t value"    = tval,
+                                 "Pr(>|t|)"   = 2*pt(-abs(tval), df=object$df))
 
-  ## cf src/stats/R/lm.R and case with no weights and an intercept
-  f <- object$fitted.values
-  r <- object$residuals
-  #mss <- sum((f - mean(f))^2)
-  mss <- if (object$intercept) sum((f - mean(f))^2) else sum(f^2)
-  rss <- sum(r^2)
+    ## cf src/stats/R/lm.R and case with no weights and an intercept
+    f <- object$fitted.values
+    r <- object$residuals
+    #mss <- sum((f - mean(f))^2)
+    mss <- if (object$intercept) sum((f - mean(f))^2) else sum(f^2)
+    rss <- sum(r^2)
 
-  object$r.squared <- mss/(mss + rss)
-  df.int <- if (object$intercept) 1L else 0L
-  n <- length(f)
-  rdf <- object$df
-  object$adj.r.squared <- 1 - (1 - object$r.squared) * ((n - df.int)/rdf)
-  class(object) <- "summary.bigLm"
-  object
+    object$r.squared <- mss/(mss + rss)
+    df.int <- if (object$intercept) 1L else 0L
+    n <- length(f)
+    rdf <- object$df
+    object$adj.r.squared <- 1 - (1 - object$r.squared) * ((n - df.int)/rdf)
+    class(object) <- "summary.bigLm"
+    object
+}
+
+
+#' bigLm default
+#'
+#' @param ... not used
+#' @rdname bigLm
+#' @method bigLm default
+#' @export
+bigLm.default <- function(X, y, method = 0L, ...) {
+
+    y <- as.numeric(y)
+
+    res <- bigLmPure(X, y, method)
+    res$call <- match.call()
+    res$intercept <- any(big.colMax(X) == big.colMin(X))
+
+    class(res) <- "bigLm"
+    res
+}
+
+#' print method for bigLm objects
+#'
+#' @rdname print
+#' @method print bigLm
+#' @export
+print.bigLm <- function(x, ...) {
+    cat("\nCall:\n")
+    print(x$call)
+    cat("\nCoefficients:\n")
+    print(x$coefficients, digits=5)
 }
 
 #' print method for summary.bigLm objects
@@ -209,20 +215,20 @@ summary.bigLm <- function(object, ...) {
 #' @method print summary.bigLm
 #' @export
 print.summary.bigLm <- function(x, ...) {
-  cat("\nCall:\n")
-  print(x$call)
-  cat("\nResiduals:\n")
-  digits <- max(3, getOption("digits") - 3)
-  print(summary(x$residuals, digits=digits)[-4])
-  cat("\n")
+    cat("\nCall:\n")
+    print(x$call)
+    cat("\nResiduals:\n")
+    digits <- max(3, getOption("digits") - 3)
+    print(summary(x$residuals, digits=digits)[-4])
+    cat("\n")
 
-  printCoefmat(x$coefficients, P.values=TRUE, has.Pvalue=TRUE, ...)
-  cat("\nResidual standard error: ", formatC(x$s, digits=digits), " on ",
-      formatC(x$df), " degrees of freedom\n", sep="")
-  cat("Multiple R-squared: ", formatC(x$r.squared, digits=digits),
-      ",\tAdjusted R-squared: ",formatC(x$adj.r.squared, digits=digits),
-      "\n", sep="")
-  invisible(x)
+    printCoefmat(x$coefficients, P.values=TRUE, has.Pvalue=TRUE, ...)
+    cat("\nResidual standard error: ", formatC(x$s, digits=digits), " on ",
+        formatC(x$df), " degrees of freedom\n", sep="")
+    cat("Multiple R-squared: ", formatC(x$r.squared, digits=digits),
+        ",\tAdjusted R-squared: ",formatC(x$adj.r.squared, digits=digits),
+        "\n", sep="")
+    invisible(x)
 }
 
 #' Prediction method for bigLm fitted objects
@@ -260,11 +266,11 @@ print.summary.bigLm <- function(x, ...) {
 #' preds <- predict(lmr1, newdata = bigmat)
 #'
 predict.bigLm <- function(object, newdata = NULL, ...) {
-  if (is.null(newdata)) {
-    y <- fitted(object)
-  } else {
-    stopifnot(is.big.matrix(newdata))
-    y <- as.vector(newdata %*% coef(object))
-  }
-  y
+    if (is.null(newdata)) {
+        y <- fitted(object)
+    } else {
+        stopifnot(is.big.matrix(newdata))
+        y <- as.vector(newdata %*% coef(object))
+    }
+    y
 }
