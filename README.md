@@ -11,6 +11,7 @@ big.matrix objects for fast out-of-memory linear model fitting
 | Windows x86_64        | [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/jaredhuling/bigFastlm?branch=master&svg=true)](https://ci.appveyor.com/project/jaredhuling/bigFastlm)     |
 
 
+
 ### Installation
 
 Install using the **devtools** package (RcppEigen and bigmemory must be installed first as well):
@@ -18,6 +19,7 @@ Install using the **devtools** package (RcppEigen and bigmemory must be installe
 ```r
 devtools::install_github("jaredhuling/bigFastlm")
 ```
+
 
 ### Usage
 
