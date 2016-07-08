@@ -9,7 +9,9 @@ Description: The bigFastlm package is a reimplementation of the fastLm functiona
     big.matrix objects for fast out-of-memory linear model fitting.
 License: GPL (>= 2)
 LazyData: TRUE
+Depends:
+    bigmemory
 Imports:
-    Rcpp (>= 0.11.0), bigmemory, methods
+    Rcpp (>= 0.11.0), methods
 LinkingTo: Rcpp, RcppEigen, BH, bigmemory
 RoxygenNote: 5.0.1

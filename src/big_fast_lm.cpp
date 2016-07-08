@@ -160,7 +160,7 @@ namespace lmsol {
     m_se           = VDi.rowwise().norm();
   }
 
-  enum {LLT_t = 0, LDLT_t, SymmEigen_t};
+  enum {LLT_t = 0, LDLT_t}; //, SymmEigen_t, QR_t};
 
   static inline lm do_lm(const Map<MatrixXd> &X, const Map<VectorXd> &y, int type) {
     switch(type) {
@@ -168,8 +168,6 @@ namespace lmsol {
       return Llt(X, y);
     case LDLT_t:
       return Ldlt(X, y);
-    case SymmEigen_t:
-      return SymmEigen(X, y);
     }
     throw invalid_argument("invalid type");
     return Ldlt(X, y);	// -Wall

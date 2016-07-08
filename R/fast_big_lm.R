@@ -64,6 +64,14 @@
 #'
 bigLmPure <- function(X, y, method = 0L) {
 
+
+    method <- as.integer(method[1])
+
+    if (method > 1L)
+    {
+        stop("invalid method")
+    }
+
     stopifnot( is.big.matrix(X), is.numeric(y), NROW(y) == nrow(X) )
 
     .Call("bigLm_Impl", X@address, y, method, colnames(X), PACKAGE="bigFastlm")
