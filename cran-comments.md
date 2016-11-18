@@ -1,4 +1,10 @@
 
+## Resubmission
+
+This is a resubmission, in this version I have:
+
+* Put proper quotes around packages in the description and functions as foo().
+
 ## Test environments
 
 * local Windows 7 install, R 3.3.1, R-devel

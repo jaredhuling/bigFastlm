@@ -1,11 +1,11 @@
 Package: bigFastlm
 Type: Package
-Title: Fast Linear Models for Bigmemory Objects
-Version: 0.0.1
+Title: Fast Linear Models for Objects from the 'bigmemory' Package
+Version: 0.0.2
 Date: 2016-10-04
 Author: Jared Huling
 Maintainer: Jared Huling <jaredhuling@gmail.com>
-Description: The bigFastlm package is a reimplementation of the fastLm functionality of RcppEigen for
+Description: A reimplementation of the fastLm() functionality of 'RcppEigen' for
     big.matrix objects for fast out-of-memory linear model fitting.
 License: GPL (>= 2)
 LazyData: TRUE

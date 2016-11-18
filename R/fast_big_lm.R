@@ -72,9 +72,14 @@ bigLmPure <- function(X, y, method = 0L) {
         stop("invalid method")
     }
 
+    cnames <- colnames(X)
+    if (is.null(cnames)) cnames <- paste0("X", 1:ncol(X))
+
     stopifnot( is.big.matrix(X), is.numeric(y), NROW(y) == nrow(X) )
 
-    .Call("bigLm_Impl", X@address, y, method, colnames(X), PACKAGE="bigFastlm")
+    res <- .Call("bigLm_Impl", X@address, y, method, cnames, PACKAGE="bigFastlm")
+    names(res$coefficients) <- cnames
+    res
 }
 
 #' fast and memory efficient linear model fitting
