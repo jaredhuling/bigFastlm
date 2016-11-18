@@ -1,5 +1,5 @@
 
-## bigFastlm
+## bigFastlm [![version](http://www.r-pkg.org/badges/version/bigFastlm)](https://cran.r-project.org/package=bigFastlm)
 A reimplementation of the fastLm functionality of RcppEigen for
 big.matrix objects for fast out-of-memory linear model fitting
 
