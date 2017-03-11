@@ -12,8 +12,8 @@ This is a resubmission, in this version I have:
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTE
+* DONE
+Status: OK
 
-Maintainer: 'Jared Huling <jaredhuling@gmail.com>'
 
-New submission
+R CMD check succeeded
