@@ -1,9 +1,7 @@
 
-## Resubmission
+## Package update
 
-This is a resubmission, in this version I have:
-
-* Put proper quotes around packages in the description and functions as foo().
+This is a minor update. Fixes some issues about variable names and adds more functionality for main fitting function.
 
 ## Test environments
 
