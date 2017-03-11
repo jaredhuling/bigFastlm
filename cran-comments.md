@@ -8,8 +8,7 @@ This is a resubmission, in this version I have:
 ## Test environments
 
 * local Windows 7 install, R 3.3.1, R-devel
-* Windows Server 2012 R2 x64 install (on AppVeyor), R 3.3.1, R-patched
-* Ubuntu 12.04.5 LTS (on travis-ci), R 3.3.1.
+* Ubuntu 12.04.5 LTS (on travis-ci), R 3.3.3.
 
 ## R CMD check results
 
