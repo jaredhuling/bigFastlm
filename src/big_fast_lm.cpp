@@ -169,8 +169,36 @@ namespace lmsol {
 
   Llt::Llt(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices) : lm(X, y, nslices) {
     LLT<MatrixXd>  Ch(XtX(nslices).selfadjointView<Lower>());
-    m_coef            = Ch.solve(X.adjoint() * y);
-    m_fitted          = X * m_coef;
+
+    VectorXd XY(m_p);
+    for (int i = 0; i < m_p; ++i)
+    {
+        XY(i) = X.col(i).dot(y);
+    }
+
+    m_coef            = Ch.solve(XY);
+
+    if (nslices <= 1)
+    {
+        m_fitted          = X * m_coef;
+    } else
+    {
+        int numrowscurfirst = std::floor(double(m_n) / double(nslices) );
+
+        for (int ff = 0; ff < nslices; ++ff)
+        {
+
+            if (ff + 1 == nslices)
+            {
+                int numrowscur = m_n - (nslices - 1) * std::floor(double(m_n) / double(nslices));
+                m_fitted.tail(numrowscur) = X.bottomRows(numrowscur) * m_coef;
+            } else
+            {
+                m_fitted.segment(ff * numrowscurfirst, numrowscurfirst) = X.middleRows(ff * numrowscurfirst, numrowscurfirst) * m_coef;
+            }
+        }
+    }
+
     m_se              = Ch.matrixL().solve(I_p()).colwise().norm();
   }
 
@@ -181,8 +209,36 @@ namespace lmsol {
     //the coefficients and the standard error computation.
     //	m_coef            = Ch.matrixL().adjoint().
     //	    solve(Dplus(D) * Ch.matrixL().solve(X.adjoint() * y));
-    m_coef            = Ch.solve(X.adjoint() * y);
-    m_fitted          = X * m_coef;
+
+
+    VectorXd XY(m_p);
+    for (int i = 0; i < m_p; ++i)
+    {
+        XY(i) = X.col(i).dot(y);
+    }
+
+    m_coef            = Ch.solve(XY);
+
+    if (nslices <= 1)
+    {
+        m_fitted          = X * m_coef;
+    } else
+    {
+        int numrowscurfirst = std::floor(double(m_n) / double(nslices) );
+
+        for (int ff = 0; ff < nslices; ++ff)
+        {
+
+            if (ff + 1 == nslices)
+            {
+                int numrowscur = m_n - (nslices - 1) * std::floor(double(m_n) / double(nslices));
+                m_fitted.tail(numrowscur) = X.bottomRows(numrowscur) * m_coef;
+            } else
+            {
+                m_fitted.segment(ff * numrowscurfirst, numrowscurfirst) = X.middleRows(ff * numrowscurfirst, numrowscurfirst) * m_coef;
+            }
+        }
+    }
     m_se              = Ch.solve(I_p()).diagonal().array().sqrt();
   }
 
