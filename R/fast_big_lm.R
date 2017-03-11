@@ -26,6 +26,10 @@
 #' @param X input model matrix. must be a big.matrix object (type = 8 for double)
 #' @param y numeric response vector of length nobs.
 #' @param method an integer scalar with value 0 for the LLT Cholesky or 1 for the LDLT Cholesky
+#' @param gigs double scalar. maximum number of gigs of memory available. Used to figure out how to break up calculations
+#' involving the design matrix X
+#' @param nslices integer scalar, defaults to NULL, which defers to the \code{gigs} argument to determine the number of slices
+#' required. If specified, nslices determines the number of slices to break up computation of X'X into.
 #' @return A list with the elements
 #' \item{coefficients}{a vector of coefficients}
 #' \item{se}{a vector of the standard errors of the coefficient estimates}
@@ -62,10 +66,23 @@
 #' max(abs(coef(lmr1) - coef(lmr2)))
 #'
 #'
-bigLmPure <- function(X, y, method = 0L) {
+bigLmPure <- function(X, y, method = 0L, gigs = 2.0, nslices = NULL) {
 
 
     method <- as.integer(method[1])
+
+    # calculate number of slices if
+    # nslices not specified
+    if (is.null(nslices))
+    {
+        xgigs   <- 8.0 * nrow(X) * ncol(X) / (10 ^ 9)
+        nslices <- ceiling(xgigs / gigs)
+    } else
+    {
+        nslices <- as.integer(nslices[1])
+    }
+
+    if (nslices >= nrow(X) * 0.5) stop("nslices must be less than 1/2 of the number of observations")
 
     if (method > 1L)
     {
@@ -77,7 +94,7 @@ bigLmPure <- function(X, y, method = 0L) {
 
     stopifnot( is.big.matrix(X), is.numeric(y), NROW(y) == nrow(X) )
 
-    res <- .Call("bigLm_Impl", X@address, y, method, cnames, PACKAGE="bigFastlm")
+    res <- .Call("bigLm_Impl", X@address, y, method, nslices, PACKAGE="bigFastlm")
     names(res$coefficients) <- cnames
     res
 }
@@ -87,6 +104,10 @@ bigLmPure <- function(X, y, method = 0L) {
 #' @param X input model matrix. must be a big.matrix object (type = 8 for double)
 #' @param y numeric response vector of length nobs.
 #' @param method an integer scalar with value 0 for the LLT Cholesky or 1 for the LDLT Cholesky
+#' @param gigs double scalar. maximum number of gigs of memory available. Used to figure out how to break up calculations
+#' involving the design matrix X
+#' @param nslices integer scalar, defaults to NULL, which defers to the \code{gigs} argument to determine the number of slices
+#' required. If specified, nslices determines the number of slices to break up computation of X'X into.
 #' @return A list object with S3 class "bigLm" with the elements
 #' \item{coefficients}{a vector of coefficients}
 #' \item{se}{a vector of the standard errors of the coefficient estimates}
@@ -196,11 +217,11 @@ summary.bigLm <- function(object, ...)
 #' @rdname bigLm
 #' @method bigLm default
 #' @export
-bigLm.default <- function(X, y, method = 0L, ...) {
+bigLm.default <- function(X, y, method = 0L, gigs = 2.0, nslices = NULL, ...) {
 
     y <- as.numeric(y)
 
-    res <- bigLmPure(X, y, method)
+    res <- bigLmPure(X, y, method, gigs, nslices)
     res$call <- match.call()
     res$intercept <- any(big.colMax(X) == big.colMin(X))
 

@@ -64,11 +64,11 @@ namespace lmsol {
     RealScalar    m_prescribedThreshold; /**< user specified tolerance */
     bool          m_usePrescribedThreshold;
   public:
-    lm(const Map<MatrixXd>&, const Map<VectorXd>&);
+    lm(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
 
     ArrayXd                Dplus(const ArrayXd& D);
     MatrixXd                 I_p() const {return MatrixXd::Identity(m_p, m_p);}
-    MatrixXd                 XtX() const;
+    MatrixXd                 XtX(int nslices) const;
 
     // setThreshold and threshold are based on ColPivHouseholderQR methods
     RealScalar         threshold() const;
@@ -81,37 +81,37 @@ namespace lmsol {
 
   class ColPivQR : public lm {
   public:
-    ColPivQR(const Map<MatrixXd>&, const Map<VectorXd>&);
+    ColPivQR(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class Llt : public lm {
   public:
-    Llt(const Map<MatrixXd>&, const Map<VectorXd>&);
+    Llt(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class Ldlt : public lm {
   public:
-    Ldlt(const Map<MatrixXd>&, const Map<VectorXd>&);
+    Ldlt(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class QR : public lm {
   public:
-    QR(const Map<MatrixXd>&, const Map<VectorXd>&);
+    QR(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class GESDD : public lm {
   public:
-    GESDD(const Map<MatrixXd>&, const Map<VectorXd>&);
+    GESDD(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class SVD : public lm {
   public:
-    SVD(const Map<MatrixXd>&, const Map<VectorXd>&);
+    SVD(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 
   class SymmEigen : public lm {
   public:
-    SymmEigen(const Map<MatrixXd>&, const Map<VectorXd>&);
+    SymmEigen(const Map<MatrixXd>&, const Map<VectorXd>&, const int &);
   };
 }
 

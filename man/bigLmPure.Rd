@@ -4,7 +4,7 @@
 \alias{bigLmPure}
 \title{fast and memory efficient linear model fitting}
 \usage{
-bigLmPure(X, y, method = 0L)
+bigLmPure(X, y, method = 0L, gigs = 2, nslices = NULL)
 }
 \arguments{
 \item{X}{input model matrix. must be a big.matrix object (type = 8 for double)}
@@ -12,6 +12,12 @@ bigLmPure(X, y, method = 0L)
 \item{y}{numeric response vector of length nobs.}
 
 \item{method}{an integer scalar with value 0 for the LLT Cholesky or 1 for the LDLT Cholesky}
+
+\item{gigs}{double scalar. maximum number of gigs of memory available. Used to figure out how to break up calculations
+involving the design matrix X}
+
+\item{nslices}{integer scalar, defaults to NULL, which defers to the \code{gigs} argument to determine the number of slices
+required. If specified, nslices determines the number of slices to break up computation of X'X into.}
 }
 \value{
 A list with the elements

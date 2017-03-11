@@ -43,7 +43,7 @@ namespace lmsol {
   using std::invalid_argument;
   using std::numeric_limits;
 
-  lm::lm(const Map<MatrixXd> &X, const Map<VectorXd> &y)
+  lm::lm(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices)
     : m_X(X),
       m_y(y),
       m_n(X.rows()),
@@ -69,9 +69,54 @@ namespace lmsol {
     return di;
   }
 
-  MatrixXd lm::XtX() const {
-    return MatrixXd(m_p, m_p).setZero().selfadjointView<Lower>().
-    rankUpdate(m_X.adjoint());
+  //MatrixXd lm::XtX() const {
+  //  return MatrixXd(m_p, m_p).setZero().selfadjointView<Lower>().
+  //  rankUpdate(m_X.adjoint());
+  //}
+
+  MatrixXd lm::XtX(int nslices) const {
+
+      if (nslices <= 1)
+      {
+          return MatrixXd(m_p, m_p).setZero().selfadjointView<Lower>().
+          rankUpdate(m_X.adjoint());
+      } else
+      {
+          MatrixXd XXtmp(m_p, m_p);
+          XXtmp.setZero();
+
+          int numrowscurfirst = std::floor(double(m_n) / double(nslices) );
+
+          //#pragma omp parallel
+          {
+              MatrixXd XXtmp_private(m_p, m_p);
+              XXtmp_private.setZero();
+
+              // break up computation of X'X into
+              // X'X = X_1'X_1 + ... + X_ncores'X_ncores
+              //#pragma omp for schedule(static) nowait
+              for (int ff = 0; ff < nslices; ++ff)
+              {
+
+                  if (ff + 1 == nslices)
+                  {
+                      int numrowscur = m_n - (nslices - 1) * std::floor(double(m_n) / double(nslices));
+                      XXtmp_private += MatrixXd(m_p, m_p).setZero().selfadjointView<Lower>().
+                      rankUpdate(m_X.bottomRows(numrowscur).adjoint());
+                  } else
+                  {
+                      XXtmp_private += MatrixXd(m_p, m_p).setZero().selfadjointView<Lower>().
+                      rankUpdate(m_X.middleRows(ff * numrowscurfirst, numrowscurfirst).adjoint());
+                  }
+              }
+              //#pragma omp critical
+              {
+                  XXtmp += XXtmp_private;
+              }
+
+          }
+          return XXtmp;
+      }
   }
 
   /** Returns the threshold that will be used by certain methods such as rank().
@@ -87,8 +132,8 @@ namespace lmsol {
     : numeric_limits<double>::epsilon() * m_p;
   }
 
-  ColPivQR::ColPivQR(const Map<MatrixXd> &X, const Map<VectorXd> &y)
-    : lm(X, y) {
+  ColPivQR::ColPivQR(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices)
+    : lm(X, y, nslices) {
     ColPivHouseholderQR<MatrixXd> PQR(X); // decompose the model matrix
     Permutation                  Pmat(PQR.colsPermutation());
     m_r                               = PQR.rank();
@@ -113,7 +158,7 @@ namespace lmsol {
     m_se                              = Pmat * m_se;
   }
 
-  QR::QR(const Map<MatrixXd> &X, const Map<VectorXd> &y) : lm(X, y) {
+  QR::QR(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices) : lm(X, y, nslices) {
     HouseholderQR<MatrixXd> QR(X);
     m_coef                     = QR.solve(y);
     m_fitted                   = X * m_coef;
@@ -122,15 +167,15 @@ namespace lmsol {
   }
 
 
-  Llt::Llt(const Map<MatrixXd> &X, const Map<VectorXd> &y) : lm(X, y) {
-    LLT<MatrixXd>  Ch(XtX().selfadjointView<Lower>());
+  Llt::Llt(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices) : lm(X, y, nslices) {
+    LLT<MatrixXd>  Ch(XtX(nslices).selfadjointView<Lower>());
     m_coef            = Ch.solve(X.adjoint() * y);
     m_fitted          = X * m_coef;
     m_se              = Ch.matrixL().solve(I_p()).colwise().norm();
   }
 
-  Ldlt::Ldlt(const Map<MatrixXd> &X, const Map<VectorXd> &y) : lm(X, y) {
-    LDLT<MatrixXd> Ch(XtX().selfadjointView<Lower>());
+  Ldlt::Ldlt(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices) : lm(X, y, nslices) {
+    LDLT<MatrixXd> Ch(XtX(nslices).selfadjointView<Lower>());
     Dplus(Ch.vectorD());	// to set the rank
     //FIXME: Check on the permutation in the LDLT and incorporate it in
     //the coefficients and the standard error computation.
@@ -141,7 +186,7 @@ namespace lmsol {
     m_se              = Ch.solve(I_p()).diagonal().array().sqrt();
   }
 
-  SVD::SVD(const Map<MatrixXd> &X, const Map<VectorXd> &y) : lm(X, y) {
+  SVD::SVD(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices) : lm(X, y, nslices) {
     JacobiSVD<MatrixXd>  UDV(X.jacobiSvd(ComputeThinU|ComputeThinV));
     MatrixXd             VDi(UDV.matrixV() *
       Dplus(UDV.singularValues().array()).matrix().asDiagonal());
@@ -150,9 +195,9 @@ namespace lmsol {
     m_se                     = VDi.rowwise().norm();
   }
 
-  SymmEigen::SymmEigen(const Map<MatrixXd> &X, const Map<VectorXd> &y)
-    : lm(X, y) {
-    SelfAdjointEigenSolver<MatrixXd> eig(XtX().selfadjointView<Lower>());
+  SymmEigen::SymmEigen(const Map<MatrixXd> &X, const Map<VectorXd> &y, const int &nslices)
+    : lm(X, y, nslices) {
+    SelfAdjointEigenSolver<MatrixXd> eig(XtX(nslices).selfadjointView<Lower>());
     MatrixXd   VDi(eig.eigenvectors() *
       Dplus(eig.eigenvalues().array()).sqrt().matrix().asDiagonal());
     m_coef         = VDi * VDi.adjoint() * X.adjoint() * y;
@@ -162,18 +207,18 @@ namespace lmsol {
 
   enum {LLT_t = 0, LDLT_t}; //, SymmEigen_t, QR_t};
 
-  static inline lm do_lm(const Map<MatrixXd> &X, const Map<VectorXd> &y, int type) {
+  static inline lm do_lm(const Map<MatrixXd> &X, const Map<VectorXd> &y, int type, int nslices) {
     switch(type) {
     case LLT_t:
-      return Llt(X, y);
+      return Llt(X, y, nslices);
     case LDLT_t:
-      return Ldlt(X, y);
+      return Ldlt(X, y, nslices);
     }
     throw invalid_argument("invalid type");
-    return Ldlt(X, y);	// -Wall
+    return Ldlt(X, y, nslices);	// -Wall
   }
 
-  List fastLm(XPtr<BigMatrix> Xs, Rcpp::NumericVector ys, int type)
+  List fastLm(XPtr<BigMatrix> Xs, Rcpp::NumericVector ys, int type, int nslices)
   {
 
     XPtr<BigMatrix> bMPtr(Xs);
@@ -192,7 +237,7 @@ namespace lmsol {
 
 
     // Select and apply the least squares method
-    lm                 ans(do_lm(X, y, type));
+    lm                 ans(do_lm(X, y, type, nslices));
 
     // Copy coefficients and install names, if any
     NumericVector     coef(wrap(ans.coef()));
@@ -222,7 +267,7 @@ namespace lmsol {
 }
 
 // This defines the R-callable function 'bigLm'
-RcppExport SEXP bigLm_Impl(SEXP X, SEXP y, SEXP type)
+RcppExport SEXP bigLm_Impl(SEXP X, SEXP y, SEXP type, SEXP nslices)
 {
   BEGIN_RCPP
   Rcpp::RObject __result;
@@ -230,7 +275,8 @@ RcppExport SEXP bigLm_Impl(SEXP X, SEXP y, SEXP type)
   Rcpp::traits::input_parameter< Rcpp::XPtr<BigMatrix> >::type X_(X);
   Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y_(y);
   Rcpp::traits::input_parameter< int >::type type_(type);
-  __result = Rcpp::wrap(lmsol::fastLm(X_, y_, type_));
+  Rcpp::traits::input_parameter< int >::type nslices_(nslices);
+  __result = Rcpp::wrap(lmsol::fastLm(X_, y_, type_, nslices_));
   return __result;
   END_RCPP
 }
