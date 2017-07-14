@@ -13,3 +13,4 @@ README_files
 ^appveyor\.yml$
 ^.*\.*.bk$
 ^.*\.*.desc$
+docs
